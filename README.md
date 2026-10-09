@@ -1,10 +1,42 @@
-# Lexical Analyzer for a custom programming language (Big-Add Language)
+# Lexical Analyzer for Big Add Language
 
-**Project and Design Info:**  
-  Given problem is a code analysis problem. We need to analyze an input file has name “myscript.ba”. In this special case we have a custom language named as “Big Add Language” this language has classic declarations and basic addition, substraction, assignment, loop and code block conditions. This lexical analyzer problem is first phase of a compiler and going to analyze “Big Add Language”. It takes a code file (in this case named as “myscript.ba”) analysis file and shows declarations, errors, comments, data types, assignments. When analyzer found a error, program going to show this to programmer and going to go on analyze. After analysis, program going to write this analysis to a file which has custom named as “myscript.lx”. Every line going to have one condition. Lexical analysis going to analyze every line in input file and generates an output file. Firstly analyzer going to start searching for first token. If analyzer can find token and if token is valid, analyzer going to show this in a line for programmer (Can be used in compiler too). If analyzer can not find any token in line going to take a look  for whitespaces and comments. If analyzer can find any comment going to rip this out from the code and show this as a comment because comments are not going to execute in compiler. If analyzer encounter with any loop or any calculation, analyzer going to specify them as a loop or calculation. Analyzer going to do this for every line and show errors and results to programmer. To show results program going to create a “myscript.lx” file and write them into the file. After that program going to end and closes. In my design i forgot mentioning about error locations.
-  
-**Code Info:**  
-  Code writed in Code Blocks 20.03 and used standart codeblocks compiler to compile it. In my design i forgot mentioning about error locations and code can not show error locations. That seems like the only problem code has and analysis seems true. To use program you must place a (for example “myscript.ba”) file into program folder after that you can run the program and use it.
+This C project analyzes a limited subset of the custom Big Add Language and writes a token and value report to `myscript.lx`. It was originally developed in Code::Blocks 20.03. It reports the first detected error and returns a nonzero status; source line and column locations are not implemented here.
+
+## Build and run
+
+Build a source copy with a C11 compiler. Both `main.c` copies are kept identical. The committed executable/object files and `.lx` files are historical artifacts, not regenerated build or test output.
+
+```sh
+gcc -std=c11 -Wall -Wextra "Only Source Codes/main.c" -o badd-analyzer
+./badd-analyzer "Only Source Codes/custom-test.ba"
+```
+
+In a Visual Studio developer command prompt:
+
+```bat
+cl /std:c11 /W3 "Only Source Codes\main.c" /Fe:badd-analyzer.exe
+badd-analyzer.exe "Only Source Codes\custom-test.ba"
+```
+
+Pass one `.ba` filename or run without arguments to enter a filename at the prompt. Paths can contain spaces. The report is written to **the current working directory**, replacing an existing `myscript.lx` there. Run from a scratch directory if you want to preserve a previous report. The process exits after analysis without waiting for another keypress.
+
+## Implemented subset and limits
+
+The parser handles period-terminated `int`, `move`, `add`, `sub`, integer/identifier `out`, single-statement counted loops and `{...}` comments. Identifiers must start with a letter and contain at most 20 alphanumeric or underscore characters. Numeric values use the compiler's C `int` range; out-of-range literals and arithmetic are rejected. This analyzer does not implement arbitrary-precision 100-digit arithmetic, quoted-string output, comma-separated output, `newline`, or general multiline loop blocks. Use the [later analyzer and interpreter](https://github.com/tugcantopaloglu/big-add-analyzer-interpreter) for the fuller language.
+
+Input is limited to 1 MiB, 1,000 statements, 999 words per statement and 1,000 symbols. Reconstructed loop bodies must fit a 100-byte buffer. These limits produce errors instead of writing past buffers.
+
+`myscript.ba` and `custom-test.ba` reference `myVar` after declaring `my_Var` and therefore fail at that identifier. `standart-test.ba` contains output syntax beyond this parser's implemented subset and is not a passing acceptance test.
+
+## Regression checks
+
+After compiling, run the standard-library Python test runner:
+
+```sh
+python3 tests/regression.py ./badd-analyzer
+```
+
+The tests generate reports in temporary directories and check arithmetic, loops, missing operands, invalid numbers, long comments, malformed input and capacity limits. They also verify the expected failures of the checked-in examples. CI builds with GCC and address/undefined-behavior sanitizers. The original screenshots below are retained as historical context.
 
 **Tests:**
 
